@@ -11,6 +11,7 @@ def create_app(config_name):
     config[config_name].init_app(app)
     
     db.init_app(app)
+
     
     # from .api.v1.chat import chat as chat_blueprint
     # app.register_blueprint(chat_blueprint)
