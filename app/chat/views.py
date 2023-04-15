@@ -16,7 +16,6 @@ from datetime import datetime
 #     return BaseResponse(code=222, message='hi', data={"msg": [i.to_dict() for i in result]}).dict()
 
 
-# bug: the default datetime can't update dynamically
 @chat.route('/<int:sender_id>', methods=['PUT'])
 def gen_message(sender_id):
     ret = Message(room_id=request.json.get('room_id'),
