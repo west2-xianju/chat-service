@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-from config import config
+from config import config, Config
 
 db = SQLAlchemy()
 
@@ -12,11 +12,13 @@ def create_app(config_name):
     
     db.init_app(app)
 
-    
     # from .api.v1.chat import chat as chat_blueprint
     # app.register_blueprint(chat_blueprint)
     
-    from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint)
+    from .chat import chat as chat_blueprint
+    app.register_blueprint(chat_blueprint, url_prefix='/chat')
+    
+    from .auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
     
     return app

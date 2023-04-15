@@ -13,6 +13,8 @@ class Config:
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET = 'testing'
+    JWT_EXPIRY = 3600
 
     @staticmethod
     def init_app(app):
