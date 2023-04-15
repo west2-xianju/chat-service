@@ -16,7 +16,7 @@ def generate_jwt(payload, expiry=expiry_date(), secret=None):
     return token
 
 
-def veryif_jwt(token, secret=None):
+def verify_jwt(token, secret=None):
     if not secret:
         secret = Config.JWT_SECRET
         

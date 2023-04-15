@@ -50,7 +50,7 @@ class Message(db.Model, BaseModel):
     id = Column(Integer, nullable=True, primary_key=True, unique=True)
     room_id = Column(Integer, nullable=False)
     sender_id = Column(Integer, nullable=False)
-    send_time = Column(DateTime, nullable=False, default=datetime.utcnow)
+    send_time = Column(DateTime, nullable=False, default=datetime.utcnow())
     _detail = Column('detail' ,String(1024), default='')
     type = Column(Enum(*MESSAGE_TYPE_ENUM), nullable=False, default=MESSAGE_TYPE_ENUM[0])
 
@@ -99,8 +99,8 @@ class Room(db.Model, BaseModel):
     goods_id = Column(Integer, nullable=False)
     seller_id = Column(Integer, nullable=False)
     buyer_id = Column(Integer, nullable=False)
-    state = Column(Enum(*ROOM_STATE_ENUM), nullable=False)
-    create_time = Column(DateTime, nullable=False, default=datetime.utcnow)
+    state = Column(Enum(*ROOM_STATE_ENUM), nullable=False, default=ROOM_STATE_ENUM[0])
+    create_time = Column(DateTime, nullable=False, default=datetime.utcnow())
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
