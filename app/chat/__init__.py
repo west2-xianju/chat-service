@@ -2,4 +2,4 @@ from flask import Blueprint
 
 chat = Blueprint('chat', __name__)
 
-from . import views, models
+from . import views, models, event

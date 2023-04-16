@@ -1,8 +1,10 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO
 
 from config import config, Config
 
+socketio = SocketIO()
 db = SQLAlchemy()
 
 def create_app(config_name):
@@ -20,5 +22,10 @@ def create_app(config_name):
     
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
+    
+    from .webui import webui as webui_blueprint
+    app.register_blueprint(webui_blueprint, url_prefix='/webui')
+    
+    socketio.init_app(app)
     
     return app
