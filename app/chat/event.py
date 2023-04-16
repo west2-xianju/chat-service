@@ -10,10 +10,17 @@ from app.chat.models import Room, Message
 def join(message):
     payload = jwt_functions.verify_jwt(session.get('token'))
     
-    room = payload['room_id']
+    room = message['room_id']
+    user_id = int(payload['user_id'])
+    roomObj = Room.query.filter_by(room_id=room).first()
     # check if room exists
-    if not Room.query.filter_by(room_id=room).first():
+    if not roomObj:
         emit('status', {'msg': 'Room does not exist.'})
+        disconnect()
+        return
+    # check if permitted
+    if roomObj.seller_id != user_id and roomObj.buyer_id != user_id:
+        emit('status', {'msg': 'not allowed'})
         disconnect()
         return
     
@@ -26,10 +33,10 @@ def join(message):
 def text(message):
     payload = jwt_functions.verify_jwt(session.get('token'))
     
-    room = payload['room_id']
+    room = int(session.get('room_id'))
     
-    Message(room_id=room, sender_id=payload['user_id'], detail=message['msg']).save()
-    emit('message', {'msg': payload['user_id'] + ':' + message['msg']}, room=room)
+    Message(room_id=room, sender_id=payload['user_id'], detail=message['detail'], type=message['type']).save()
+    emit('message', {'msg': payload['user_id'] + ':' + message['detail']}, room=room)
 
 
 @socketio.on('left', namespace='/chat')

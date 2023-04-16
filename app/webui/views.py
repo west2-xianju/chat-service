@@ -8,13 +8,10 @@ def index():
     """Login form to enter a room."""
     form = LoginForm()
     if form.validate_on_submit():
-        session['token'] = jwt_functions.generate_jwt({'user_id': form.user_id.data, 'room_id': form.room_id.data})
+        session['token'] = jwt_functions.generate_jwt({'user_id': form.user_id.data})
+        session['room_id'] = form.room_id.data
         return redirect(url_for('.chat'))
-    elif request.method == 'GET':
-        payload = jwt_functions.verify_jwt(session.get('token', None))
-        if payload:
-            form.user_id.data = payload['user_id']
-            form.room_id.data = payload['room_id']
+
     return render_template('index.html', form=form)
 
 
@@ -25,5 +22,5 @@ def chat():
     payload = jwt_functions.verify_jwt(session.get('token', None))
     if not payload:
         return redirect(url_for('.index'))
-    return render_template('chat.html', name=payload['user_id'], room=payload['room_id'])
+    return render_template('chat.html', name=payload['user_id'], room=session['room_id'])
  
