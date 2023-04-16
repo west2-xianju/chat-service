@@ -26,3 +26,4 @@ def chat():
     if not payload:
         return redirect(url_for('.index'))
     return render_template('chat.html', name=payload['user_id'], room=payload['room_id'])
+ 

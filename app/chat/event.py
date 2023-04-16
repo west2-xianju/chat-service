@@ -5,7 +5,7 @@ from app.utils import jwt_functions
 from app.decorators import token_required_socket
 from app.chat.models import Room, Message
 
-@socketio.on('joined', namespace='/chat')
+@socketio.on('join', namespace='/chat')
 @token_required_socket
 def join(message):
     payload = jwt_functions.verify_jwt(session.get('token'))
