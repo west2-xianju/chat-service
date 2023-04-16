@@ -39,14 +39,6 @@ MESSAGE_TYPE_ENUM = ['plaintext', 'photo', 'voice', 'video', 'file']
 class Message(db.Model, BaseModel):
     __tablename__ = 'message'
     
-    # id = db.Column(db.Integer, primary_key=True)
-    # _username = db.Column("username", db.String(64), unique=True)
-    # _email = db.Column("email", db.String(64), unique=True)
-    # password_hash = db.Column(db.String(128))
-    # member_since = db.Column(db.DateTime, default=datetime.utcnow)
-    # last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    # is_admin = db.Column(db.Boolean, default=False)
-    # id = db.Column(db.integ, primary_key=True)
     id = Column(Integer, nullable=True, primary_key=True, unique=True)
     room_id = Column(Integer, nullable=False)
     sender_id = Column(Integer, nullable=False)
@@ -95,7 +87,7 @@ ROOM_STATE_ENUM = ['pending', 'ongoing', 'finished']
 class Room(db.Model, BaseModel):
     __tablename__ = 'room'
     
-    room_id = Column(Integer, primary_key=True, unique=True)
+    room_id = Column(BigInteger, primary_key=True, unique=True)
     goods_id = Column(Integer, nullable=False)
     seller_id = Column(Integer, nullable=False)
     buyer_id = Column(Integer, nullable=False)
@@ -113,4 +105,20 @@ class Room(db.Model, BaseModel):
             'buyer_id': self.buyer_id,
             'state': self.state,
             'create_time': self.create_time, 
+        }
+        
+        
+class Goods(db.Model, BaseModel):
+    __tablename__ = 'goods'
+    
+    uid = Column(Integer, primary_key=True, unique=True)
+    seller_id = Column(Integer, nullable=False)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+    def to_dict(self):
+        return {
+            'goods_id': self.uid,
+            'seller_id': self.seller_id,
         }

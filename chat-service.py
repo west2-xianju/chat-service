@@ -38,5 +38,5 @@ def test():
 
 @app.cli.command()
 def fill_db():
-    # to-do
-    pass
+    from utils.db_generator import FakeGenerator
+    FakeGenerator().start()
