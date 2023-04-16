@@ -1,10 +1,11 @@
 import os
 
+
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
+BASEDB = os.environ.get("DATABASE_BASE_URI")
 
-
-def create_sqlalchemy_url(db_name):
-    return "mysql+pymysql://root:zenor0@localhost:3306/" + db_name
+def create_sqlalchemy_uri(db_name):
+    return BASEDB + db_name
     # return "sqlite:///" + os.path.join(BASEDIR, db_name)
 
 
@@ -23,12 +24,12 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = create_sqlalchemy_url("chat_dev")
+    SQLALCHEMY_DATABASE_URI = create_sqlalchemy_uri("chat_dev")
 
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = create_sqlalchemy_url("chat_test")
+    SQLALCHEMY_DATABASE_URI = create_sqlalchemy_uri("chat_test")
     WTF_CSRF_ENABLED = False
     import logging
 
@@ -37,7 +38,7 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = create_sqlalchemy_url("chat")
+    SQLALCHEMY_DATABASE_URI = create_sqlalchemy_uri("chat")
 
 
 config = {
