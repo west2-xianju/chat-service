@@ -1,5 +1,5 @@
 from flask import request
-from app.auth import auth
+from . import auth
 from app.models import BaseResponse
 
 from app.utils import jwt_functions

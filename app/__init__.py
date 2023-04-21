@@ -17,14 +17,14 @@ def create_app(config_name):
     # from .api.v1.chat import chat as chat_blueprint
     # app.register_blueprint(chat_blueprint)
     
-    from .chat import chat as chat_blueprint
+    from .api.chat import chat as chat_blueprint
     app.register_blueprint(chat_blueprint, url_prefix='/chat')
     
-    from .auth import auth as auth_blueprint
+    from .api.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     
     from .webui import webui as webui_blueprint
-    app.register_blueprint(webui_blueprint, url_prefix='/webui')
+    app.register_blueprint(webui_blueprint, url_prefix='/')
     
     socketio.init_app(app)
     

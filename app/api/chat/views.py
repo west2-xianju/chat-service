@@ -1,5 +1,5 @@
 from flask import redirect, request, url_for
-from app.chat import chat
+from . import chat
 from app.models import BaseResponse
 from app.decorators import login_required
 from app.utils import jwt_functions

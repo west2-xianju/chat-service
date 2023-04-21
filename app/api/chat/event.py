@@ -1,9 +1,9 @@
 from flask import session, request
 from flask_socketio import emit, join_room, leave_room, disconnect
-from .. import socketio
+from ... import socketio
 from app.utils import jwt_functions
 from app.decorators import token_required_socket
-from app.chat.models import Room, Message
+from .models import Room, Message
 
 @socketio.on('join', namespace='/chat')
 @token_required_socket
