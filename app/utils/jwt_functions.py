@@ -6,7 +6,10 @@ def expiry_date():
 	return datetime.utcnow() + timedelta(seconds=Config.JWT_EXPIRY)
 
 def generate_jwt(payload, expiry=expiry_date(), secret=None):
-    _payload = {'exp': expiry}
+    _payload = {
+        'iss': "chat-service",
+        'exp': expiry,
+        }
     _payload.update(payload)
         
     if not secret:
