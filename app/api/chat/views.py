@@ -74,7 +74,6 @@ def pull_message_logs(room_id):
         start_time = datetime.utcfromtimestamp(int(request.args.get('start_time')))
     if request.args.get('end_time'):
         end_time =  datetime.utcfromtimestamp(int(request.args.get('end_time')))
-        
     # msg = Message.query.filter_by(room_id=room_id, sender_id=payload['user_id']).all()
     # msg = Message.query.filter(Message.send_time.between(start_time, end_time)).all()
     msg = Message.query.filter_by(room_id=room_id, sender_id=payload['user_id']).filter(Message.send_time.between(start_time, end_time)).all()

@@ -1,4 +1,4 @@
-from flask import session, request
+from flask import session, request, current_app
 from flask_socketio import emit, join_room, leave_room, disconnect
 from ... import socketio
 from app.utils import jwt_functions
@@ -25,6 +25,7 @@ def join(message):
         return
     
     join_room(room)
+    current_app.logger.info('')
     emit('status', {'msg': payload['user_id'] + ' has entered the room.'}, room=room)
 
 
@@ -44,7 +45,7 @@ def send(message):
 def leave(message):
     payload = jwt_functions.verify_jwt(session.get('token'))
     
-    room = payload['room_id']
+    room = int(session.get('room_id'))
     leave_room(room)
     emit('status', {'msg': payload['user_id'] + ' has left the room.'}, room=room)
 
