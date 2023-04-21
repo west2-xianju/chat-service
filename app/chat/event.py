@@ -28,9 +28,9 @@ def join(message):
     emit('status', {'msg': payload['user_id'] + ' has entered the room.'}, room=room)
 
 
-@socketio.on('text', namespace='/chat')
+@socketio.on('send', namespace='/chat')
 @token_required_socket
-def text(message):
+def send(message):
     payload = jwt_functions.verify_jwt(session.get('token'))
     
     room = int(session.get('room_id'))
@@ -39,9 +39,9 @@ def text(message):
     emit('message', {'msg': payload['user_id'] + ':' + message['detail']}, room=room)
 
 
-@socketio.on('left', namespace='/chat')
+@socketio.on('leave', namespace='/chat')
 @token_required_socket
-def left(message):
+def leave(message):
     payload = jwt_functions.verify_jwt(session.get('token'))
     
     room = payload['room_id']

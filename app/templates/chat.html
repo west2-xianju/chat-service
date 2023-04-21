@@ -23,12 +23,12 @@
                     if (code == 13) {
                         text = $('#text').val();
                         $('#text').val('');
-                        socket.emit('text', {detail: text, type: "plaintext"});
+                        socket.emit('send', {detail: text, type: "plaintext"});
                     }
                 });
             });
             function leave_room() {
-                socket.emit('left', {}, function() {
+                socket.emit('leave', {}, function() {
                     socket.disconnect();
 
                     // go back to the login page
