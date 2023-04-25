@@ -10,6 +10,8 @@ from datetime import datetime
 
 from snowflake import SnowflakeGenerator
 
+from app.api import client_count
+
 # @chat.route("/", methods=['GET', 'POST'])
 # def index():
 #     result = Message.query.filter_by(detail='hello').all()
@@ -92,3 +94,8 @@ def get_chat_list():
     room_list = Room.query.filter(or_(Room.seller_id == payload['user_id'], Room.buyer_id == payload['user_id'])).all()
     return BaseResponse(data={'room': [i.to_dict() for i in room_list]}).dict()
 
+
+@chat.route('/dev', methods=['GET'])
+def get_online_clients_count():
+    
+    return BaseResponse(code=client_count.get()).dict()

@@ -20,6 +20,9 @@ def create_app(config_name):
     from .api.chat import chat as chat_blueprint
     app.register_blueprint(chat_blueprint, url_prefix='/chat')
     
+    # from .api.notifications import notifications as notifications_blueprint
+    # app.register_blueprint(notifications_blueprint, url_prefix='/notifications')
+    
     from .api.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     

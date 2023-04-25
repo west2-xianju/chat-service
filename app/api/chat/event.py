@@ -5,6 +5,10 @@ from app.utils import jwt_functions
 from app.decorators import token_required_socket
 from .models import Room, Message
 
+from app.api import client_count
+
+# TODO: use redis for client list maintaining, one user can only establish one connection
+
 @socketio.on('join', namespace='/chat')
 @token_required_socket
 def join(message):
@@ -26,6 +30,8 @@ def join(message):
         disconnect()
         return
     
+    client_count.add()
+    current_app.logger.debug('current user %d', client_count.get())
     join_room(room)
     current_app.logger.info('User %d try to enter %d room. Allowed.', user_id, room)
     emit('status', {'msg': payload['user_id'] + ' has entered the room.'}, room=room)
@@ -55,3 +61,10 @@ def leave(message):
     current_app.logger.info('User %d left room %d', user_id, room)
     emit('status', {'msg': payload['user_id'] + ' has left the room.'}, room=room)
 
+
+@socketio.on("disconnect",namespace='/chat')
+@token_required_socket
+def disconnect():
+    client_count.sub()
+    current_app.logger.info('somebody leave')
+    current_app.logger.debug('current user %d', client_count.get())
