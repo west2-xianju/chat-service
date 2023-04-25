@@ -3,14 +3,14 @@ from . import chat
 from app.models import BaseResponse
 from app.decorators import login_required
 from app.utils import jwt_functions
-from .models import Message, Room, Goods
+from .models import Message, Room, Good
 
 from sqlalchemy import or_
 from datetime import datetime
 
 from snowflake import SnowflakeGenerator
 
-from app.api import client_count
+from app.api import client_counter
 
 @chat.route('/<int:goods_id>', methods=['POST'])
 @login_required
@@ -18,7 +18,7 @@ def establish_room(goods_id):
     payload = jwt_functions.verify_jwt(request.headers.get('Authorization').split(' ')[1])
     
     # check if goods exist
-    goods_info = Goods.query.filter_by(uid=goods_id).first()
+    goods_info = Good.query.filter_by(uid=goods_id).first()
     if not goods_info:
         return BaseResponse(code=404, message='goods not found').dict()
     

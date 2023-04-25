@@ -5,7 +5,7 @@ from app.utils import jwt_functions
 from app.decorators import token_required_socket
 from .models import Room, Message
 
-from app.api import client_count
+from app.api import client_counter
 
 # TODO: use redis for client list maintaining, one user can only establish one connection
 
@@ -30,9 +30,8 @@ def join(message):
         disconnect()
         return
     
-    client_count.add_user(user_id, room)
-    print(rooms)
-    current_app.logger.debug('current user %d', client_count.get())
+    client_counter.add_user(user_id, request.sid)
+    current_app.logger.debug('current user %d', client_counter.get())
     join_room(room)
     current_app.logger.info('User %d try to enter %d room. Allowed.', user_id, room)
     emit('status', {'msg': payload['user_id'] + ' has entered the room.'}, room=room)
@@ -45,7 +44,6 @@ def send(message):
     
     user_id = int(payload['user_id'])
     room = int(session.get('room_id'))
-    
     Message(room_id=room, sender_id=payload['user_id'], detail=message['detail'], type=message['type']).save()
     current_app.logger.info('User %d send a message in room %d, which content is "%s"...', user_id, room, message['detail'][:10])
     emit('message', {'msg': f"{user_id}: {message['detail']}"}, room=room)
@@ -68,7 +66,9 @@ def leave(message):
 def disconnect():
     payload = jwt_functions.verify_jwt(session.get('token'))
     
-    print(client_count.client_dict)
+    print(client_counter.client_dict)
+    # print(rooms())
+    client_counter.remove_user(int(payload['user_id']), request.sid)
     current_app.logger.info('somebody disconnected')
     
 @socketio.on('logout', namespace='/chat')
@@ -77,7 +77,7 @@ def logout():
     payload = jwt_functions.verify_jwt(session.get('token'))
     user_id = int(payload['user_id'])
     
-    client_count.log_out(user_id)
-    print(client_count.client_dict)
+    client_counter.log_out(user_id)
+    print(client_counter.client_dict)
     
-    current_app.logger.debug('somebody logout, current user %d', client_count.get())
+    current_app.logger.debug('somebody logout, current user %d', client_counter.get())

@@ -4,7 +4,7 @@ from datetime import datetime
 import forgery_py
 
 from app import db
-from app.api.chat.models import Message, Room, Goods
+from app.api.chat.models import Message, Room, Good
 from app.api.notifications.models import Notification
 
 class FakeGenerator:
@@ -40,7 +40,15 @@ class FakeGenerator:
                         detail=forgery_py.forgery.lorem_ipsum.sentence()).save()
         
         for _ in range(count):
-            Goods(uid=goods[_], seller_id=random.choice(user)).save()
+            Good().from_dict({
+                'seller_id': random.randint(1, count),
+                'state': random.choice(Good.GOOD_STATES_ENUM),
+                'game': forgery_py.forgery.address.city(),
+                'title': forgery_py.forgery.lorem_ipsum.title(),
+                'detail': forgery_py.forgery.lorem_ipsum.sentences(),
+                'price': random.randint(1, 100),
+                'publish_time': self.generate_fake_date(),
+            })
 
     def generate_fake_data(self, count):
         # generation must follow this order, as each builds on the previous

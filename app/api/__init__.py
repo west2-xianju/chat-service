@@ -1,5 +1,3 @@
-
-
 # reimplement it by redis later on 
 
 class ClientCounter():
@@ -12,11 +10,11 @@ class ClientCounter():
     def is_online(self, user_id):
         return user_id in self.client_dict
 
-    def add_user(self, user_id, room_id):
+    def add_user(self, user_id, sid):
         if user_id == None:
             raise ValueError('user_id cannot be None')
         
-        if room_id == None:
+        if sid == None:
             raise ValueError('room_id cannot be None')
         
         # if user_id in self.client_dict and room_id in self.client_dict[user_id]:
@@ -24,15 +22,34 @@ class ClientCounter():
         #     return False
         
         if user_id in self.client_dict:
-            self.client_dict[user_id].append(room_id)
+            self.client_dict[user_id].append(sid)
             return
         
         self.client_dict[user_id] = []
-        self.client_dict[user_id].append(room_id)
+        self.client_dict[user_id].append(sid)
         self.client_count += 1
         
         return
+    
+    def remove_user(self, user_id, sid):
+        if user_id == None:
+            raise ValueError('user_id cannot be None')
         
+        if  sid == None:
+            raise ValueError('room_id cannot be None')
+        
+        if user_id not in self.client_dict:
+            return
+        
+        self.client_dict[user_id].remove(sid)
+        
+        if len(self.client_dict[user_id]) == 0:
+            self.client_dict.pop(user_id)
+            self.client_count -= 1
+            
+        
+        return
+    
     def log_out(self, user_id):
         if user_id == None:
             raise ValueError('user_id cannot be None')
@@ -62,7 +79,7 @@ class ClientCounter():
         return self.client_count
 
 
-client_count = ClientCounter()
+client_counter = ClientCounter()
 
 
 from flask import Blueprint

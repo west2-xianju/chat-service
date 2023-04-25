@@ -3,11 +3,11 @@ from . import dev
 from app.models import BaseResponse
 from app.decorators import login_required
 from app.utils import jwt_functions
-from ..chat.models import Message, Room, Goods
+from ..chat.models import Message, Room, Good
 
-from app.api import client_count
+from app.api import client_counter
 from flask_socketio import emit, join_room, leave_room, close_room, rooms, disconnect
-from app.api.notifications import notification_room_generator
+from app.api.notifications import generate_notification_roomid
 from app.api.notifications.models import Notification
 
 from app import socketio
@@ -16,7 +16,7 @@ import json
 @dev.route('/chat', methods=['GET'])
 def get_online_clients_count():
     
-    return BaseResponse(code=client_count.get()).dict()
+    return BaseResponse(code=client_counter.get()).dict()
 
 
 
@@ -56,11 +56,11 @@ def push_notification(user_id):
     data = json.loads(request.data)
     
     # check if user online 
-    if client_count.is_online(user_id):
+    if client_counter.is_online(user_id):
         # if online, push notification to client
         # if not, save notification to database
         
-        socketio.emit('notification', data, room=notification_room_generator(user_id), namespace='/chat')
+        socketio.emit('notification', data, room=generate_notification_roomid(user_id), namespace='/chat')
         return BaseResponse(message='send', data=data).dict()
     else:
         Notification(user_id=user_id, **data).save()
