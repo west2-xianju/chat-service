@@ -20,10 +20,14 @@ from app.api import client_count
 #     return BaseResponse(code=222, message='hi', data={"msg": [i.to_dict() for i in result]}).dict()
 
 
-@notifications.route('/<int:goods_id>', methods=['POST'])
+@notifications.route('/', methods=['POST'])
 @login_required
-def establish_room(goods_id):
-    pass
+def establish_notification_room():
+    payload = jwt_functions.verify_jwt(request.headers.get('Authorization').split(' ')[1])
+    
+    snow_gen = SnowflakeGenerator(2)
+    
+    return BaseResponse(data={'room_id': next(snow_gen)}).dict()
 
 @notifications.route('/', methods=['GET'])
 @login_required

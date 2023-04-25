@@ -35,6 +35,15 @@
                     window.location.href = "{{ url_for('webui.index') }}";
                 });
             }
+            function log_out()
+            {
+                socket.emit('logout', function() {
+                    socket.disconnect();
+
+                    // go back to the login page
+                    window.location.href = "{{ url_for('webui.index') }}";
+                });
+            }
         </script>
     </head>
     <body>
@@ -42,5 +51,6 @@
         <textarea id="chat" cols="80" rows="20"></textarea><br><br>
         <input id="text" size="80" placeholder="Enter your message here"><br><br>
         <a href="#" onclick="leave_room();">Leave this room</a>
+        <a href="#" onclick="log_out();">Log out</a>
     </body>
 </html>

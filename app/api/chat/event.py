@@ -30,7 +30,8 @@ def join(message):
         disconnect()
         return
     
-    client_count.add()
+    client_count.add_user(user_id, room)
+    print(client_count.client_dict)
     current_app.logger.debug('current user %d', client_count.get())
     join_room(room)
     current_app.logger.info('User %d try to enter %d room. Allowed.', user_id, room)
@@ -65,6 +66,18 @@ def leave(message):
 @socketio.on("disconnect",namespace='/chat')
 @token_required_socket
 def disconnect():
-    client_count.sub()
-    current_app.logger.info('somebody leave')
-    current_app.logger.debug('current user %d', client_count.get())
+    payload = jwt_functions.verify_jwt(session.get('token'))
+    
+    print(client_count.client_dict)
+    current_app.logger.info('somebody disconnected')
+    
+@socketio.on('logout', namespace='/chat')
+@token_required_socket
+def logout():
+    payload = jwt_functions.verify_jwt(session.get('token'))
+    user_id = int(payload['user_id'])
+    
+    client_count.log_out(user_id)
+    print(client_count.client_dict)
+    
+    current_app.logger.debug('somebody logout, current user %d', client_count.get())
