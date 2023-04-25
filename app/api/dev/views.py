@@ -6,7 +6,12 @@ from app.utils import jwt_functions
 from ..chat.models import Message, Room, Goods
 
 from app.api import client_count
+from flask_socketio import emit, join_room, leave_room, close_room, rooms, disconnect
+from app.api.notifications import notification_room_generator
+from app.api.notifications.models import Notification
 
+from app import socketio
+import json
 
 @dev.route('/chat', methods=['GET'])
 def get_online_clients_count():
@@ -45,13 +50,20 @@ def get_user_jwt(user_id):
 
 @dev.route('/notifications/<int:user_id>', methods=['POST'])
 def push_notification(user_id):
-    if not request.json:
+    if not request.data:
         return BaseResponse(code=400, message='bad request').dict()
     
+    data = json.loads(request.data)
+    
     # check if user online 
-    if user_id in client_count:
+    if client_count.is_online(user_id):
         # if online, push notification to client
         # if not, save notification to database
-        pass
+        
+        socketio.emit('notification', data, room=notification_room_generator(user_id), namespace='/chat')
+        return BaseResponse(message='send', data=data).dict()
+    else:
+        Notification(user_id=user_id, **data).save()
+        return BaseResponse(message='user not online', data=data).dict()
     
-    return BaseResponse(data={'room_id': 1}).dict()
+    return BaseResponse(message='unknown error').dict()

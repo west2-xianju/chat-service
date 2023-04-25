@@ -12,6 +12,10 @@ from snowflake import SnowflakeGenerator
 
 from app.api import client_count
 
+from app.api.chat.models import Room
+
+from . import notification_room_generator
+
 # @chat.route("/", methods=['GET', 'POST'])
 # def index():
 #     result = Message.query.filter_by(detail='hello').all()
@@ -25,9 +29,11 @@ from app.api import client_count
 def establish_notification_room():
     payload = jwt_functions.verify_jwt(request.headers.get('Authorization').split(' ')[1])
     
-    snow_gen = SnowflakeGenerator(2)
+    # snow_gen = SnowflakeGenerator(2)
+    notification_room_id = notification_room_generator(payload['user_id'])
+    Room(room_id=notification_room_id, seller_id=payload['user_id']).save()
     
-    return BaseResponse(data={'room_id': next(snow_gen)}).dict()
+    return BaseResponse(data={'room_id': notification_room_id}).dict()
 
 @notifications.route('/', methods=['GET'])
 @login_required

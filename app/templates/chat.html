@@ -10,6 +10,10 @@
                 socket.on('connect', function() {
                     socket.emit('join', {room_id: {{room}}});
                 });
+                socket.on('notification', function(data) {
+                    $('#chat').val($('#chat').val() + '[notification]' + '<' + data.title + '>' + data.content + '(' + data.level + ')' + '\n');
+                    $('#chat').scrollTop($('#chat')[0].scrollHeight);
+                });
                 socket.on('status', function(data) {
                     $('#chat').val($('#chat').val() + '<' + data.msg + '>\n');
                     $('#chat').scrollTop($('#chat')[0].scrollHeight);

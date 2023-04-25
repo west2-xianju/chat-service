@@ -88,9 +88,9 @@ class Room(db.Model, BaseModel):
     __tablename__ = 'room'
     
     room_id = Column(BigInteger, primary_key=True, unique=True)
-    goods_id = Column(Integer, nullable=False)
+    goods_id = Column(Integer)
     seller_id = Column(Integer, nullable=False)
-    buyer_id = Column(Integer, nullable=False)
+    buyer_id = Column(Integer)
     state = Column(Enum(*ROOM_STATE_ENUM), nullable=False, default=ROOM_STATE_ENUM[0])
     create_time = Column(DateTime, nullable=False, default=datetime.utcnow)
     

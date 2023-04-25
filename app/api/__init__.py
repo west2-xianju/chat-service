@@ -8,6 +8,9 @@ class ClientCounter():
 
     def __init__(self):
         self.client_count = 0
+        
+    def is_online(self, user_id):
+        return user_id in self.client_dict
 
     def add_user(self, user_id, room_id):
         if user_id == None:

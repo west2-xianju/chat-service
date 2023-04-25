@@ -1,5 +1,5 @@
 from flask import session, request, current_app
-from flask_socketio import emit, join_room, leave_room, disconnect
+from flask_socketio import emit, join_room, leave_room, disconnect, rooms
 from ... import socketio
 from app.utils import jwt_functions
 from app.decorators import token_required_socket
@@ -31,7 +31,7 @@ def join(message):
         return
     
     client_count.add_user(user_id, room)
-    print(client_count.client_dict)
+    print(rooms)
     current_app.logger.debug('current user %d', client_count.get())
     join_room(room)
     current_app.logger.info('User %d try to enter %d room. Allowed.', user_id, room)

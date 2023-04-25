@@ -4,8 +4,8 @@ from datetime import datetime
 import forgery_py
 
 from app import db
-from app.chat.models import Message, Room, Goods
-
+from app.api.chat.models import Message, Room, Goods
+from app.api.notifications.models import Notification
 
 class FakeGenerator:
     def __init__(self):
