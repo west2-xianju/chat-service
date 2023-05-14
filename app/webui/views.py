@@ -10,6 +10,7 @@ def index():
     if form.validate_on_submit():
         session['token'] = jwt_functions.generate_jwt({'user_id': form.user_id.data})
         session['room_id'] = form.room_id.data
+        # print(form)
         return redirect(url_for('.chat'))
 
     return render_template('index.html', form=form)

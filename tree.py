@@ -1,5 +1,4 @@
 import jwt
-from app import Config
 from datetime import datetime, timedelta
 
 def expiry_date():
@@ -25,8 +24,13 @@ def verify_jwt(token, secret=None):
         
     try:
         payload = jwt.decode(token, secret, algorithms='HS256')
-        # print(payload)
+        print(payload)
     except jwt.PyJWTError:
         payload = None
     
     return payload
+
+
+token = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyaWQiOjkxMzgzMDAsImJsb2NrZWQiOmZhbHNlfQ.BIv76e7HTtvmW8gE0NEzKDYn5ByRvzcpip-hzoMAdjA'
+secret = ''
+verify_jwt(token, '')
