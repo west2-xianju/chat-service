@@ -7,34 +7,35 @@ from .models import Notification
 
 from sqlalchemy import or_
 from datetime import datetime
+from app import socketio
+import json
 
 from snowflake import SnowflakeGenerator
 
-from app.api import client_counter
+from ..chat.models import Room
+from app import client_manager
 
-from app.api.chat.models import Room
 
-from . import generate_notification_roomid
+from . import generate_notification_roomID
 
 
 @notifications.route('/', methods=['POST'])
 @login_required
-def establish_notification_room():
-    payload = jwt_functions.verify_jwt(request.headers.get('Authorization').split(' ')[1])
-    
-    # snow_gen = SnowflakeGenerator(2)
-    notification_room_id = generate_notification_roomid(payload['user_id'])
+def establish_notification_room(payload: dict = {}):
+    snow_gen = SnowflakeGenerator(instance=1)
+    notification_room_id = generate_notification_roomID(payload['user_id'])
     Room(room_id=notification_room_id, seller_id=payload['user_id']).save()
     
     return BaseResponse(data={'room_id': notification_room_id}).dict()
 
+
+# TODO
+# save notifications into redis db
 @notifications.route('/', methods=['GET'])
 @login_required
-def pull_notification():
-    payload = jwt_functions.verify_jwt(request.headers.get('Authorization').split(' ')[1])
-    
+def pull_notification(payload: dict = {}):
     notification_list = Notification.query.filter_by(user_id=payload['user_id']).all()
-    response_dict = {'notification_list': [i.to_dict() for i in notification_list]}
+    response_dict = {'notifications': [i.to_dict() for i in notification_list], 'count': len(notification_list)}
     
     for _ in notification_list:
         _.delete()
@@ -42,7 +43,22 @@ def pull_notification():
     return BaseResponse(data=response_dict).dict()
 
 
-@notifications.route('/', methods=['GET'])
-@login_required
-def get_chat_list():
-    pass
+@notifications.route('/<int:user_id>', methods=['POST'])
+def push_notification(user_id):
+    if not request.data:
+        return BaseResponse(code=400, message='bad request').dict()
+    
+    data = json.loads(request.data)
+    
+    # check if user online 
+    if client_manager.check_user_if_online(user_id):
+        # if online, push notification to client
+        # if not, save notification to database
+        
+        socketio.emit('notification', data, room=generate_notification_roomID(user_id), namespace='/chat')
+        return BaseResponse(message='send', data=data).dict()
+    else:
+        Notification(user_id=user_id, **data).save()
+        return BaseResponse(code=201, message=f'user {user_id} is not online').dict()
+    
+    return BaseResponse(message='unknown error').dict()

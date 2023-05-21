@@ -5,79 +5,90 @@ from app.utils import jwt_functions
 from app.decorators import token_required_socket
 from .models import Room, Message
 
-from app.api import client_counter
+from datetime import datetime
+from app import client_manager
 
+import jwt
 # TODO: use redis for client list maintaining, one user can only establish one connection
 
-@socketio.on('join', namespace='/chat')
-@token_required_socket
+@socketio.on('connect', namespace='/chat')
+def connect(message):
+    emit('status', {'msg': 'Trying to connect to chat service, with following data: ', 'data': message})
+    
+    # Check if token is provided
+    token = message['token']
+    if token == None:
+        emit('status', {'msg': 'Token is required. Disconnecting...'})
+        disconnect()
+        return
+    
+    # Check if token is valid
+    try:
+        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+    except:
+        emit('status', {'msg': 'Token is invalid. Disconnecting...'})
+        disconnect()
+        return
+    
+    # Check if user is connected to notification service
+    if not client_manager.check_user_if_online(payload['user_id']):
+        emit('status', {'msg': 'You are not connected to notification service. Disconnecting...'})
+        disconnect()
+        return
+    
+    # join_room(room_id)
+    client_manager.add_sid(payload['user_id'], request.sid)
+    emit('status', {'msg': 'Connected to chat service'})
+
+
+@socketio.event(namespace='/chat')
 def join(message):
-    payload = jwt_functions.verify_jwt(session.get('token'))
-    
-    room = message['room_id']
-    user_id = int(payload['user_id'])
-    roomObj = Room.query.filter_by(room_id=room).first()
-    # check if room exists
-    if not roomObj:
-        current_app.logger.info('User %d try to enter %d room. Not found.', user_id, room)
-        emit('status', {'msg': 'Room does not exist.'})
-        disconnect()
-        return
-    # check if permitted
-    if roomObj.seller_id != user_id and roomObj.buyer_id != user_id:
-        current_app.logger.info('User %d try to enter %d room. Rejected.', user_id, room)
-        emit('status', {'msg': 'not allowed'})
+    user_id = client_manager.get_user_id_by_sid(request.sid)
+    if user_id == None:
+        emit('status', {'msg': 'You are not connected to chat service. Disconnecting...'})
         disconnect()
         return
     
-    client_counter.add_user(user_id, request.sid)
-    current_app.logger.debug('current user %d', client_counter.get())
-    join_room(room)
-    current_app.logger.info('User %d try to enter %d room. Allowed.', user_id, room)
-    emit('status', {'msg': payload['user_id'] + ' has entered the room.'}, room=room)
-
-
-@socketio.on('send', namespace='/chat')
-@token_required_socket
-def send(message):
-    payload = jwt_functions.verify_jwt(session.get('token'))
+    # Check if room_id is provided
+    room_id = message['room_id']
+    if room_id == None:
+        emit('status', {'msg': 'Room id is required. Disconnecting...'})
+        disconnect()
+        return
     
-    user_id = int(payload['user_id'])
-    room = int(session.get('room_id'))
-    Message(room_id=room, sender_id=payload['user_id'], detail=message['detail'], type=message['type']).save()
-    current_app.logger.info('User %d send a message in room %d, which content is "%s"...', user_id, room, message['detail'][:10])
-    emit('message', {'msg': f"{user_id}: {message['detail']}"}, room=room)
+    # Check if user if permitted to access the room
+    room = Room.query.filter_by(room_id=room_id).first()
+    if not room:
+        emit('status', {'msg': 'Room not found. Disconnecting...'})
+        disconnect()
+        return
 
+    if not (room.seller_id == user_id or room.buyer_id == user_id):
+        emit('status', {'msg': 'You are not permitted to access this room. Disconnecting...'})
+        disconnect()
+        return
+    
+    join_room(room_id)
+    client_manager.add_room(request.sid, room_id)
+    emit('status', {'msg': 'Joined room {}'.format(room_id)})
+    
 
-@socketio.on('leave', namespace='/chat')
-@token_required_socket
-def leave(message):
-    payload = jwt_functions.verify_jwt(session.get('token'))
+@socketio.on('message', namespace='/chat')
+def send_message(message):
+    user_id = client_manager.get_user_id_by_sid(request.sid)
+    if user_id == None:
+        emit('status', {'msg': 'You are not connected to chat service. Disconnecting...'})
+        disconnect()
+        return
+    room = client_manager.get_room_by_sid(request.sid)
+    Message(room_id=room, sender_id=user_id, detail=message['detail'], send_time=datetime.utcnow(), type=message['type']).save()
     
-    user_id = int(payload['user_id'])
-    room = int(session.get('room_id'))
-    leave_room(room)
-    current_app.logger.info('User %d left room %d', user_id, room)
-    emit('status', {'msg': payload['user_id'] + ' has left the room.'}, room=room)
-
-
-@socketio.on("disconnect",namespace='/chat')
-@token_required_socket
-def disconnect():
-    payload = jwt_functions.verify_jwt(session.get('token'))
+    emit('message', {'sender': user_id, 'detail': message['detail'], 'send_time': datetime.utcnow().timestamp(), 'type': message['type']}, room=room, namespace='/chat')
     
-    print(client_counter.client_dict)
-    # print(rooms())
-    client_counter.remove_user(int(payload['user_id']), request.sid)
-    current_app.logger.info('somebody disconnected')
+@socketio.event(namespace='/chat')
+def disconnect(): 
+    client_manager.delete_room(request.sid)
+    client_manager.delete_sid(request.sid)
     
-@socketio.on('logout', namespace='/chat')
-@token_required_socket
-def logout():
-    payload = jwt_functions.verify_jwt(session.get('token'))
-    user_id = int(payload['user_id'])
-    
-    client_counter.log_out(user_id)
-    print(client_counter.client_dict)
-    
-    current_app.logger.debug('somebody logout, current user %d', client_counter.get())
+    current_app.logger.debug('disconnected')
+    emit('status', {'msg': 'Disconnected'})

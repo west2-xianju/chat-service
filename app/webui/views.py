@@ -8,7 +8,7 @@ def index():
     """Login form to enter a room."""
     form = LoginForm()
     if form.validate_on_submit():
-        session['token'] = jwt_functions.generate_jwt({'user_id': form.user_id.data})
+        session['token'] = jwt_functions.generate_jwt({'user_id': form.user_id.data, 'blocked': False})
         session['room_id'] = form.room_id.data
         return redirect(url_for('.chat'))
 

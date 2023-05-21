@@ -69,7 +69,7 @@ class Message(db.Model, BaseModel):
             # 'id': self.id,
             # 'room_id': self.room_id,
             'sender_id': self.sender_id,
-            'send_time': self.send_time,
+            'send_time': datetime.isoformat(self.send_time, sep=' '),
             'detail': self._detail,
             'type': self.type, 
             }
@@ -78,7 +78,7 @@ class Message(db.Model, BaseModel):
             # 'id': self.id,
             'room_id': self.room_id,
             'sender_id': self.sender_id,
-            'send_time': self.send_time,
+            'send_time': datetime.isoformat(self.send_time, sep=' '),
             'detail': self._detail,
             'type': self.type, 
             }
@@ -104,7 +104,7 @@ class Room(db.Model, BaseModel):
             'seller_id': self.seller_id,
             'buyer_id': self.buyer_id,
             'state': self.state,
-            'create_time': self.create_time, 
+            'create_time': datetime.isoformat(self.create_time, sep=' '),
         }
         
         
@@ -134,7 +134,7 @@ class Good(db.Model, BaseModel):
             'title': self.title,
             'detail': self.detail,
             'price': self.price,
-            'publish_time': self.publish_time
+            'publish_time': datetime.isoformat(self.publish_time, sep=' '),
             }
         
 

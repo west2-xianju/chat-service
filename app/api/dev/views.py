@@ -5,18 +5,18 @@ from app.decorators import login_required
 from app.utils import jwt_functions
 from ..chat.models import Message, Room, Good
 
-from app.api import client_counter
 from flask_socketio import emit, join_room, leave_room, close_room, rooms, disconnect
-from app.api.notifications import generate_notification_roomid
+from app.api.notifications import generate_notification_roomID
 from app.api.notifications.models import Notification
 
-from app import socketio
+from app import socketio, client_manager
 import json
 
-@dev.route('/chat', methods=['GET'])
+
+@dev.route('/clients', methods=['GET'])
 def get_online_clients_count():
     
-    return BaseResponse(code=client_counter.get()).dict()
+    return BaseResponse(data={'count': client_manager.get_user_count(), 'users': client_manager.USER_TABLE, 'sid_table': client_manager.SID_TABLE}).dict()
 
 
 
@@ -42,28 +42,7 @@ def gen_room(room_id):
 
 @dev.route('/auth/<int:user_id>', methods=['GET'])
 def get_user_jwt(user_id):
-    token = jwt_functions.generate_jwt({'user_id': user_id})
+    token = jwt_functions.generate_jwt({'user_id': user_id, 'blocked': False})
     
 
     return BaseResponse(data={'token': token, 'token_type': 'Bearer'}).dict()
-
-
-@dev.route('/notifications/<int:user_id>', methods=['POST'])
-def push_notification(user_id):
-    if not request.data:
-        return BaseResponse(code=400, message='bad request').dict()
-    
-    data = json.loads(request.data)
-    
-    # check if user online 
-    if client_counter.is_online(user_id):
-        # if online, push notification to client
-        # if not, save notification to database
-        
-        socketio.emit('notification', data, room=generate_notification_roomid(user_id), namespace='/chat')
-        return BaseResponse(message='send', data=data).dict()
-    else:
-        Notification(user_id=user_id, **data).save()
-        return BaseResponse(message='user not online', data=data).dict()
-    
-    return BaseResponse(message='unknown error').dict()

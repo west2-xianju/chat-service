@@ -18,21 +18,27 @@ def login_required(f):
 
         if not payload:
             return BaseResponse(code=401, message='invalid token').dict()
-
-        return f(*args, **kwargs)
+        
+        
+        new_kwargs = {'payload': payload}
+        new_kwargs.update(kwargs)
+        return f(*args, **new_kwargs)
     return wrapper
 
 def token_required_socket(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        if not session.get('token'):
+        token = session.get('token') or request.args.get('jwt')
+        if not token:
             emit('status', {'msg': 'No token'})
             disconnect()
-        
-        payload = jwt_functions.verify_jwt(session.get('token'))
+            
+        payload = jwt_functions.verify_jwt(token)
         if not payload:
             emit('status', {'msg': 'invalid token'})
             disconnect()
-        return f(*args, **kwargs)
-    
+            
+        new_kwargs = {'payload': payload}
+        new_kwargs.update(kwargs)
+        return f(*args, **new_kwargs)
     return wrapper

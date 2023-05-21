@@ -11,10 +11,10 @@ def generate_jwt(payload, expiry=expiry_date(), secret=None):
         'exp': expiry,
         }
     _payload.update(payload)
-        
+
     if not secret:
-        secret = Config.JWT_SECRET
-        
+        secret = Config.JWT_SECRET or ''
+
     token = jwt.encode(_payload, secret, algorithm='HS256')
     return token
 
@@ -22,10 +22,11 @@ def generate_jwt(payload, expiry=expiry_date(), secret=None):
 def verify_jwt(token, secret=None):
     if not secret:
         secret = Config.JWT_SECRET
-        
+
     try:
         payload = jwt.decode(token, secret, algorithms='HS256')
-    except jwt.PyJWTError:
+        # print(payload)
+    except:
         payload = None
-    
+
     return payload

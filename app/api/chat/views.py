@@ -10,15 +10,12 @@ from datetime import datetime
 
 from snowflake import SnowflakeGenerator
 
-from app.api import client_counter
 
 @chat.route('/<int:goods_id>', methods=['POST'])
 @login_required
-def establish_room(goods_id):
-    payload = jwt_functions.verify_jwt(request.headers.get('Authorization').split(' ')[1])
-    
+def establish_room(goods_id, payload: dict = {}):
     # check if goods exist
-    goods_info = Good.query.filter_by(uid=goods_id).first()
+    goods_info = Good.query.filter_by(good_id=goods_id).first()
     if not goods_info:
         return BaseResponse(code=404, message='goods not found').dict()
     
@@ -39,9 +36,7 @@ def establish_room(goods_id):
 
 @chat.route('/log/<int:room_id>', methods=['GET'])
 @login_required
-def pull_message_logs(room_id):
-    payload = jwt_functions.verify_jwt(request.headers.get('Authorization').split(' ')[1])
-
+def pull_message_logs(room_id, payload: dict = {}):
     start_time = datetime.utcfromtimestamp(0)
     end_time = datetime.utcnow()
     
@@ -53,16 +48,14 @@ def pull_message_logs(room_id):
     # msg = Message.query.filter(Message.send_time.between(start_time, end_time)).all()
     msg = Message.query.filter_by(room_id=room_id, sender_id=payload['user_id']).filter(Message.send_time.between(start_time, end_time)).all()
     return BaseResponse(data={'msg': [i.to_dict() for i in msg],
-                              'create_time': datetime.utcnow(),
-                              'start_time': start_time,
+                              'create_time': datetime.isoformat(datetime.utcnow(), sep=' '),
+                              'start_time': datetime.isoformat(start_time, sep=' '),
                               'end_time': end_time,
                               'room_id': room_id}).dict()
 
 @chat.route('/', methods=['GET'])
 @login_required
-def get_chat_list():
-    payload = jwt_functions.verify_jwt(request.headers.get('Authorization').split(' ')[1])
-
+def get_chat_list(payload: dict = {}):
     # ret = Room.query.filter(Room.seller_id == payload['user_id']).all()
     room_list = Room.query.filter(or_(Room.seller_id == payload['user_id'], Room.buyer_id == payload['user_id'])).all()
     return BaseResponse(data={'room': [i.to_dict() for i in room_list]}).dict()

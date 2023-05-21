@@ -1,11 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
+from flask_cors import CORS
 
 from config import config, Config
+from .utils import ClientManager
 
 socketio = SocketIO()
 db = SQLAlchemy()
+client_manager = ClientManager()
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -30,8 +33,8 @@ def create_app(config_name):
     app.register_blueprint(api_blueprint, url_prefix='/')
     
     from .webui import webui as webui_blueprint
-    app.register_blueprint(webui_blueprint, url_prefix='/')
+    app.register_blueprint(webui_blueprint, url_prefix='/webui')
     
-    socketio.init_app(app)
+    socketio.init_app(app, cors_allowed_origins="*")
     
     return app
