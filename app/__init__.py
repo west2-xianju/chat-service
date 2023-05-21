@@ -31,10 +31,7 @@ def create_app(config_name):
     
     from .api import api as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/')
-    
-    from .webui import webui as webui_blueprint
-    app.register_blueprint(webui_blueprint, url_prefix='/webui')
-    
+
     socketio.init_app(app, cors_allowed_origins="*")
     
     return app
