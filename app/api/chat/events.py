@@ -2,6 +2,7 @@ from flask import session, request, current_app
 from flask_socketio import emit, join_room, leave_room, disconnect, rooms
 from ... import socketio
 from app.utils import jwt_functions
+from app.utils.message_processor import message_processor
 from app.decorators import token_required_socket
 from .models import Room, Message
 
@@ -81,9 +82,12 @@ def send_message(message):
         disconnect()
         return
     room = client_manager.get_room_by_sid(request.sid)
+    
+    processed_message = message_processor.process(message['detail'])
+    current_app.logger.debug('raw message: %s, processed message %s', message, processed_message)
     Message(room_id=room, sender_id=user_id, detail=message['detail'], send_time=datetime.utcnow(), type=message['type']).save()
     
-    emit('message', {'sender': user_id, 'detail': message['detail'], 'send_time': datetime.utcnow().timestamp(), 'type': message['type']}, room=room, namespace='/chat')
+    emit('message', {'sender': user_id, 'detail': processed_message, 'send_time': datetime.utcnow().timestamp(), 'type': message['type']}, room=room, namespace='/chat')
     
 @socketio.event(namespace='/chat')
 def disconnect(): 
