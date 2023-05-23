@@ -114,22 +114,34 @@ class ClientManager():
     
 
     def get_user_count(self):
+        ''' Get user count '''
         return len(self.USER_TABLE)
 
     def get_user_token(self, user_id):
+        ''' Get user's jwt token
+        :param user_id: user's id
+        '''
         if self.USER_TABLE.get(user_id, None) == None:
             raise ValueError('user not exist')
 
         return self.USER_TABLE[user_id]
 
     def check_user_if_online(self, user_id):
+        ''' Check if user is online
+        :param user_id: user's id
+        '''
         return user_id in self.USER_TABLE
 
     def show_user_table(self):
+        ''' Show user table
+        function: print user table
+        '''
         for i in self.USER_TABLE:
             print(i, self.USER_TABLE[i])
 
     def show_sid_table(self):
+        ''' Show sid table
+        function: print sid table'''
         for i in self.SID_TABLE:
             print(i, self.SID_TABLE[i])
 

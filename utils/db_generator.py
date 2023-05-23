@@ -6,6 +6,7 @@ import forgery_py
 from app import db
 from app.api.chat.models import Message, Room, Good
 from app.api.notifications.models import Notification
+from app.api.chat.blacklist.models import BlackList
 
 class FakeGenerator:
     def __init__(self):
@@ -49,6 +50,7 @@ class FakeGenerator:
                 'price': random.randint(1, 100),
                 'publish_time': self.generate_fake_date(),
             })
+            
 
     def generate_fake_data(self, count):
         # generation must follow this order, as each builds on the previous
