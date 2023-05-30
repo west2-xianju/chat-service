@@ -3,7 +3,7 @@ from . import chat
 from app.models import BaseResponse
 from app.decorators import login_required
 from app.utils import jwt_functions
-from .models import Message, Room, Good
+from .models import Message, Room, Good, User
 
 from sqlalchemy import or_
 from datetime import datetime
@@ -66,11 +66,13 @@ def get_chat_list(payload: dict = {}):
         if _.seller_id == user_id:
             ret_list.append({'room_id': _.room_id,
                              'goods_id': _.goods_id,
+                             'profile': User.query.filter_by(user_id=_.buyer_id).first().profile,
                              'user_id': _.buyer_id,
                              'create_time': _.create_time,})
         if _.buyer_id == user_id:
             ret_list.append({'room_id': _.room_id,
                              'goods_id': _.goods_id,
+                             'profile': User.query.filter_by(user_id=_.seller_id).first().profile,
                              'user_id': _.seller_id,
                              'create_time': _.create_time,})
     return BaseResponse(data={'room': ret_list}).dict()
