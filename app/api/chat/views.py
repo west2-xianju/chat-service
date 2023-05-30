@@ -48,6 +48,7 @@ def pull_message_logs(room_id, payload: dict = {}):
     # msg = Message.query.filter(Message.send_time.between(start_time, end_time)).all()
     msg = Message.query.filter_by(room_id=room_id, sender_id=payload['user_id']).filter(Message.send_time.between(start_time, end_time)).all()
     return BaseResponse(data={'msg': [i.to_dict() for i in msg],
+                              'count': len(msg),
                               'create_time': datetime.isoformat(datetime.utcnow(), sep=' '),
                               'start_time': datetime.isoformat(start_time, sep=' '),
                               'end_time': end_time,
@@ -57,6 +58,21 @@ def pull_message_logs(room_id, payload: dict = {}):
 @login_required
 def get_chat_list(payload: dict = {}):
     # ret = Room.query.filter(Room.seller_id == payload['user_id']).all()
-    room_list = Room.query.filter(or_(Room.seller_id == payload['user_id'], Room.buyer_id == payload['user_id'])).all()
-    return BaseResponse(data={'room': [i.to_dict() for i in room_list]}).dict()
+    user_id = payload['user_id']
+    room_list = Room.query.filter(or_(Room.seller_id == user_id, Room.buyer_id == user_id)).all()
+    
+    ret_list = []
+    for _ in room_list:
+        if _.seller_id == user_id:
+            ret_list.append({'room_id': _.room_id,
+                             'goods_id': _.goods_id,
+                             'user_id': _.buyer_id,
+                             'create_time': _.create_time,})
+        if _.buyer_id == user_id:
+            ret_list.append({'room_id': _.room_id,
+                             'goods_id': _.goods_id,
+                             'user_id': _.seller_id,
+                             'create_time': _.create_time,})
+    return BaseResponse(data={'room': ret_list}).dict()
+    # return BaseResponse(data={'room': [i.to_dict() for i in room_list]}).dict()
 

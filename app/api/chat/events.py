@@ -95,8 +95,13 @@ def send_message(message):
         emit('status', {'msg': 'You are not connected to chat service. Disconnecting...'})
         disconnect()
         return
+    try:
+        room_id = client_manager.get_room_by_sid(request.sid)
+    except:
+        emit('status', {'msg': 'You are not in any room. Disconnecting...'})
+        disconnect()
+        return
     
-    room_id = client_manager.get_room_by_sid(request.sid)
     room = Room.query.filter_by(room_id=room_id).first()
     
     target_id = room.seller_id if room.buyer_id == user_id else room.buyer_id

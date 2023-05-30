@@ -19,14 +19,14 @@ from app import client_manager
 from . import generate_notification_roomID
 
 
-@notifications.route('/', methods=['POST'])
-@login_required
-def establish_notification_room(payload: dict = {}):
-    snow_gen = SnowflakeGenerator(instance=1)
-    notification_room_id = generate_notification_roomID(payload['user_id'])
-    Room(room_id=notification_room_id, seller_id=payload['user_id']).save()
+# @notifications.route('/', methods=['POST'])
+# @login_required
+# def establish_notification_room(payload: dict = {}):
+#     snow_gen = SnowflakeGenerator(instance=1)
+#     notification_room_id = generate_notification_roomID(payload['user_id'])
+#     Room(room_id=notification_room_id, seller_id=payload['user_id']).save()
     
-    return BaseResponse(data={'room_id': notification_room_id}).dict()
+#     return BaseResponse(data={'room_id': notification_room_id}).dict()
 
 
 # TODO
@@ -55,7 +55,7 @@ def push_notification(user_id):
         # if online, push notification to client
         # if not, save notification to database
         
-        socketio.emit('notification', data, room=generate_notification_roomID(user_id), namespace='/chat')
+        socketio.emit('notification', data, room=generate_notification_roomID(user_id), namespace='/notification')
         return BaseResponse(message='send', data=data).dict()
     else:
         Notification(user_id=user_id, **data).save()

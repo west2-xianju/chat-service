@@ -44,7 +44,6 @@ def connect(message):
     current_app.logger.debug(
         'current user %d', client_manager.get_user_count())
     join_room(generate_notification_roomID(int(payload['user_id'])))
-    
     emit('status', {'msg': 'Connected to notification service'})
 
 @socketio.on('push', namespace='/notification')
@@ -60,19 +59,19 @@ def push_notification(message):
     
     emit('notification', message)
     
-@socketio.on('leave', namespace='/notification')
-@token_required_socket
-def leave(message, payload: dict = {}):
-    user_id = int(payload['user_id'])
+# @socketio.on('leave', namespace='/notification')
+# @token_required_socket
+# def leave(message, payload: dict = {}):
+#     user_id = int(payload['user_id'])
     
-    client_manager.disconnect(user_id)
-    client_manager.show_sid_table()
+#     client_manager.disconnect(user_id)
+#     client_manager.show_sid_table()
     
-    current_app.logger.info('User %d log out notification', user_id)
+#     current_app.logger.info('User %d log out notification', user_id)
 
 @socketio.on('disconnect', namespace='/notification')
-@token_required_socket
-def logout(payload: dict = {}):
+# @token_required_socket
+def logout():
     user_id = client_manager.get_user_id_by_sid(request.sid)
     print(user_id)
     client_manager.disconnect(user_id)

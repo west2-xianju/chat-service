@@ -1,4 +1,4 @@
-from flask import abort, request, session
+from flask import request
 from app.utils import jwt_functions
 from app.models import BaseResponse
 import functools
@@ -28,7 +28,7 @@ def login_required(f):
 def token_required_socket(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        token = session.get('token') or request.args.get('jwt')
+        token = request.args.get('jwt')
         if not token:
             emit('status', {'msg': 'No token'})
             disconnect()
