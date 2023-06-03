@@ -7,6 +7,8 @@ from app.decorators import token_required_socket
 from app import client_manager
 from . import generate_notification_roomID
 
+from app import Config
+
 import jwt
 # TODO: use redis for client list maintaining, one user can only establish one connection
 
@@ -33,17 +35,17 @@ def connect(message):
         return
     
     try:
-        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        payload = jwt.decode(token, Config.SECRET_KEY, algorithms=['HS256'])
     except:
         emit('status', {'msg': 'invalid token'})
         disconnect()
         return
     emit('status', {'msg': 'parse payload: ', 'data': payload})
     
-    client_manager.connect(int(payload['user_id']), token, request.sid)
+    client_manager.connect(int(payload['userid']), token, request.sid)
     current_app.logger.debug(
         'current user %d', client_manager.get_user_count())
-    join_room(generate_notification_roomID(int(payload['user_id'])))
+    join_room(generate_notification_roomID(int(payload['userid'])))
     emit('status', {'msg': 'Connected to notification service'})
 
 @socketio.on('push', namespace='/notification')

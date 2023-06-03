@@ -10,6 +10,7 @@ from .blacklist import check_if_blocked_user, check_if_user_is_blocked
 
 from datetime import datetime
 from app import client_manager
+from app import Config
 
 import jwt
 # TODO: use redis for client list maintaining, one user can only establish one connection
@@ -27,20 +28,20 @@ def connect(message):
     
     # Check if token is valid
     try:
-        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        payload = jwt.decode(token, Config.SECRET_KEY, algorithms=['HS256'])
     except:
         emit('status', {'msg': 'Token is invalid. Disconnecting...'})
         disconnect()
         return
     
     # Check if user is connected to notification service
-    if not client_manager.check_user_if_online(payload['user_id']):
+    if not client_manager.check_user_if_online(payload['userid']):
         emit('status', {'msg': 'You are not connected to notification service. Disconnecting...'})
         disconnect()
         return
     
     # join_room(room_id)
-    client_manager.add_sid(payload['user_id'], request.sid)
+    client_manager.add_sid(payload['userid'], request.sid)
     emit('status', {'msg': 'Connected to chat service'})
 
 
