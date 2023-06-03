@@ -10,7 +10,37 @@ This is a module of Xianju server, maintaining app's chat services. i.e. simple 
 
 ### Docker
 
-(NOT implemented yet)
+ Notice: Replace labels concluded with `<>` with custom content.
+
+To deploy the Service using Docker, follow these steps:
+
+1. Ensure that Docker is installed on your system. You can download Docker from the official website: [https://www.docker.com](https://www.docker.com).
+
+2. Clone this repository to your local machine:
+
+   ```shell
+   git clone https://github.com/west2-xianju/chat-service
+   ```
+
+3. Navigate to the project directory:
+
+   ```shell
+   cd chat-service
+   ```
+
+4. Build the Docker image:
+
+   ```shell
+   docker build -t <custom-tag-name> .
+   ```
+
+5. Run the Docker container:
+
+   ```shell
+   docker run -p <outside-port>:5000 <custom-tag-name>
+   ```
+
+   The backend service will now be running on `http://localhost:<outside-port>`.
 
 ### Manually
 
