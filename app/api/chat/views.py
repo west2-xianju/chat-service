@@ -36,7 +36,7 @@ def establish_room(goods_id, payload: dict = {}):
     ret_result = result.to_dict()
     ret_result.update({'good_data': goods_info.to_dict()})
 
-    return BaseResponse(data=ret_result).dict()
+    return BaseResponse(data=result.to_dict()).dict()
 
 
 @chat.route('/log/<int:room_id>', methods=['GET'])
@@ -65,7 +65,6 @@ def pull_message_logs(room_id, payload: dict = {}):
 @chat.route('/', methods=['GET'])
 @login_required
 def get_chat_list(payload: dict = {}):
-    # ret = Room.query.filter(Room.seller_id == payload['user_id']).all()
     user_id = payload['user_id']
     room_list = Room.query.filter(
         or_(Room.seller_id == user_id, Room.buyer_id == user_id)).all()

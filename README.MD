@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is a module of xianju server, maintaining app's chat services. i.e. simple authorization system(not used in app), API and WebUI(xianju-admin-frontend).
+This is a module of Xianju server, maintaining app's chat services. i.e. simple authorization system(not used in app), API and WebUI(xianju-admin-frontend).
 
 
 
