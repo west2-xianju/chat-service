@@ -51,7 +51,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = create_sqlalchemy_uri("chat")
     SQLALCHEMY_BINDS = {
-        'app': create_app_sqlalchemy_uri('app'),
+        'app': create_app_sqlalchemy_uri('xianju'),
     }
 
 config = {
