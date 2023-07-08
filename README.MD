@@ -4,6 +4,12 @@
 
 This is a module of Xianju server, maintaining app's chat services. i.e. simple authorization system(not used in app), API and WebUI(xianju-admin-frontend).
 
+## Feature
+
++ Notification: push notification to online/offline clients
++ Sensitive messages detection: check every message, automatic filter sensitive words
++ Offline message lasting: save undelivered messages into databases, offered APIs to fetch incoming messages.
++ Restful APIs
 
 
 ## Deployment
