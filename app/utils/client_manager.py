@@ -1,4 +1,6 @@
 import flask_socketio
+
+
 class ClientManager():
     '''
     A class to manage client's connection.
@@ -29,10 +31,9 @@ class ClientManager():
         if self.USER_TABLE.get(user_id, None) == None:
             raise ValueError('user not exist')
 
-        
         for _ in self.SID_TABLE[user_id]:
             flask_socketio.disconnect(sid=_, namespace='/notification')
-        
+
         self.USER_TABLE.pop(user_id)
         self.SID_TABLE.pop(user_id)
 
@@ -44,7 +45,7 @@ class ClientManager():
             raise ValueError('user not exist')
 
         self.SID_TABLE[user_id].append(sid)
-        
+
     def add_room(self, sid, room):
         ''' Add a room to a user's connection.
         :param room: room's id
@@ -71,7 +72,7 @@ class ClientManager():
             self.SID_TABLE[user_id].remove(sid)
         except ValueError:
             raise ValueError('sid not exist')
-        
+
         # if no sid left, delete corresponding user_id
         if len(self.SID_TABLE[user_id]) == 0:
             self.USER_TABLE.pop(user_id)
@@ -95,7 +96,7 @@ class ClientManager():
             raise ValueError('user not exist')
 
         return self.SID_TABLE[user_id]
-    
+
     def get_user_id_by_sid(self, sid):
         ''' Get user_id by sid
         :param sid: user's sid'''
@@ -103,7 +104,7 @@ class ClientManager():
             if sid in self.SID_TABLE[_]:
                 return _
         raise ValueError('sid not exist')
-    
+
     def get_room_by_sid(self, sid):
         ''' Get room by sid
         :param sid: user's sid'''
@@ -111,7 +112,6 @@ class ClientManager():
             print(self.ROOM_TABLE)
             raise ValueError('sid not exist')
         return self.ROOM_TABLE[sid]
-    
 
     def get_user_count(self):
         ''' Get user count '''
@@ -144,4 +144,3 @@ class ClientManager():
         function: print sid table'''
         for i in self.SID_TABLE:
             print(i, self.SID_TABLE[i])
-

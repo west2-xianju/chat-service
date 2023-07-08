@@ -6,6 +6,8 @@ from app.decorators import token_required_socket
 
 from app import client_manager
 from . import generate_notification_roomID
+from .models import Notification
+from .views import call_push
 
 from app import Config
 
@@ -42,11 +44,17 @@ def connect(message):
         return
     emit('status', {'msg': 'parse payload: ', 'data': payload})
     
-    client_manager.connect(int(payload['userid']), token, request.sid)
+    user_id = int(payload['userid'])
+    client_manager.connect(user_id, token, request.sid)
     current_app.logger.debug(
         'current user %d', client_manager.get_user_count())
-    join_room(generate_notification_roomID(int(payload['userid'])))
+    join_room(generate_notification_roomID(user_id))
     emit('status', {'msg': 'Connected to notification service'})
+    
+    # check if user has undelivered notifications
+    # notification_list = Notification.query.filter_by(user_id=user_id).all()
+    # for _ in notification_list:
+    #     call_push(_.to_dict(), generate_notification_roomID(user_id))
 
 @socketio.on('push', namespace='/notification')
 def push_notification(message):
@@ -54,7 +62,7 @@ def push_notification(message):
     if user_id == None:
         emit('status', {'msg': 'You are not connected to notification service. Disconnecting...'})
         disconnect()
-        return
+        return               
     
     # Check if room_id is provided
     room_id = generate_notification_roomID(user_id)

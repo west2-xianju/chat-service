@@ -4,6 +4,7 @@ from app.models import BaseResponse
 from app.decorators import login_required
 from app.utils import jwt_functions
 from .models import Notification
+from .schemas import NotificationBase
 
 from sqlalchemy import or_
 from datetime import datetime
@@ -48,17 +49,22 @@ def push_notification(user_id):
     if not request.data:
         return BaseResponse(code=400, message='bad request').dict()
     
-    data = json.loads(request.data)
+    notificationObj = NotificationBase(**json.loads(request.data))
     
     # check if user online 
     if client_manager.check_user_if_online(user_id):
         # if online, push notification to client
         # if not, save notification to database
         
-        socketio.emit('notification', data, room=generate_notification_roomID(user_id), namespace='/notification')
-        return BaseResponse(message='send', data=data).dict()
+        call_push(notificationObj.dict(), generate_notification_roomID(user_id))
+        # socketio.emit('notification', notificationObj.dict(), room=generate_notification_roomID(user_id), namespace='/notification')
+        return BaseResponse(message='send', data=notificationObj.dict()).dict()
     else:
-        Notification(user_id=user_id, **data).save()
+        Notification(user_id=user_id, **notificationObj.dict()).save()
         return BaseResponse(code=201, message=f'user {user_id} is not online').dict()
     
     return BaseResponse(message='unknown error').dict()
+
+
+def call_push(notificationObject, room):
+    socketio.emit('notification', notificationObject, room=room, namespace='/notification')

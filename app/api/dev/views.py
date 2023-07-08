@@ -43,6 +43,5 @@ def gen_room(room_id):
 @dev.route('/auth/<int:user_id>', methods=['GET'])
 def get_user_jwt(user_id):
     token = jwt_functions.generate_jwt({'user_id': user_id, 'blocked': False})
-    
 
     return BaseResponse(data={'token': token, 'token_type': 'Bearer'}).dict()

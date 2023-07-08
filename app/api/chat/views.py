@@ -52,8 +52,7 @@ def pull_message_logs(room_id, payload: dict = {}):
         end_time = datetime.utcfromtimestamp(int(request.args.get('end_time')))
     # msg = Message.query.filter_by(room_id=room_id, sender_id=payload['user_id']).all()
     # msg = Message.query.filter(Message.send_time.between(start_time, end_time)).all()
-    msg = Message.query.filter_by(room_id=room_id, sender_id=payload['user_id']).filter(
-        Message.send_time.between(start_time, end_time)).all()
+    msg = Message.query.filter_by(room_id=room_id).filter(Message.send_time.between(start_time, end_time)).all()
     return BaseResponse(data={'msg': [i.to_dict() for i in msg],
                               'count': len(msg),
                               'create_time': datetime.isoformat(datetime.utcnow(), sep=' '),
